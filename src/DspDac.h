@@ -29,14 +29,16 @@ class DspDac : public DspObject {
   
   public:
     static MessageObject *newObject(PdMessage *initMessage, PdGraph *graph);
-    DspDac(PdGraph *graph);
+    DspDac(PdMessage *initMessage, PdGraph *graph);
     ~DspDac();
   
     static const char *getObjectLabel() { return "dac~"; }
     string toString() { return string(DspDac::getObjectLabel()); }
   
   private:
-    static void processSignal(DspObject *dspObject, int fromIndex, int toIndex);
+    void processDspWithIndex(int fromIndex, int toIndex);
+  
+    std::vector<float *> outputBuffers;
 };
 
 #endif // _DSP_DAC_H_

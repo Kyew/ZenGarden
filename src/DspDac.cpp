@@ -23,49 +23,49 @@
 #include "ArrayArithmetic.h"
 #include "DspDac.h"
 #include "PdGraph.h"
+#include "PdContext.h"
 
 MessageObject *DspDac::newObject(PdMessage *initMessage, PdGraph *graph) {
-  return new DspDac(graph);
+  return new DspDac(initMessage, graph);
 }
 
-DspDac::DspDac(PdGraph *graph) : DspObject(0, graph->getNumOutputChannels(), 0, 0, graph) {
-  // cache pointers to global output buffers in dspBufferAtOutlet
-  int numInlets = graph->getNumOutputChannels();
-  if (numInlets > 2) dspBufferAtOutlet[2] = (float *) calloc(numInlets-2, sizeof(float *));
-  
-  for (int i = 0; i < numInlets; i++) {
-    setDspBufferAtOutlet(graph->getGlobalDspBufferAtOutlet(i), i);
+DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
+  : DspObject(0, 1, 0, 0, graph) {
+
+  if (initMessage->getNumElements() == 0) {
+    outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(0));
   }
-  
-  processFunction = &processSignal;
-}
-
-DspDac::~DspDac() {
-  free(dspBufferAtOutlet[2]);
-}
-
-void DspDac::processSignal(DspObject *dspObject, int fromIndex, int toIndex) {
-  DspDac *d = reinterpret_cast<DspDac *>(dspObject);
-  switch (d->incomingDspConnections.size()) {
-    default: {
-      /* TODO(mhroth): fit this into the new buffer reference architecture
-      for (int i = 2; i < numDspInlets; i++) {
-        float *globalOutputBuffer = graph->getGlobalDspBufferAtOutlet(i);
-        ArrayArithmetic::add(globalOutputBuffer, localDspBufferAtInlet[i], globalOutputBuffer, 0, blockSizeInt);
+  else {
+    outputBuffers.reserve(initMessage->getNumElements());
+    for (int i = 0; i < initMessage->getNumElements(); ++i) {
+      int index;
+      
+      if (!initMessage->isFloat(i)) {
+        graph->printErr("DspDac: Init message should only containes output channels index");
+        outputBuffers.clear();
+        return;
       }
-      */
-      // allow fallthrough
+      index = static_cast<int>(initMessage->getFloat(i)) - 1;
+      if (index < graph->getContext()->getNumOutputChannels() && index >= 0) {
+        outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(index));
+      }
+      else {
+        outputBuffers.push_back(NULL);
+      }
     }
-    case 2: {
-      ArrayArithmetic::add(d->dspBufferAtOutlet[1], d->dspBufferAtInlet[1],
-          d->dspBufferAtOutlet[1], 0, toIndex);
-      // allow fallthrough
-    }
-    case 1: {
-      ArrayArithmetic::add(d->dspBufferAtOutlet[0], d->dspBufferAtInlet[0],
-          d->dspBufferAtOutlet[0], 0, toIndex);
-      // allow fallthrough
-    }
-    case 0: break;
+  }
+  incomingDspConnections = std::vector<std::list<ObjectLetPair> >(outputBuffers.size());
+}
+
+DspDac::~DspDac() {}
+
+void DspDac::processDspWithIndex(int fromIndex, int toIndex) {
+  if (outputBuffers.size() == 0)
+    return;
+  for (int i = 0; i < outputBuffers.size(); ++i) {
+    if (outputBuffers.at(i) == NULL)
+      continue;
+    for (int sample = fromIndex; sample < toIndex; ++sample)
+      outputBuffers.at(i)[sample] += dspBufferAtInlet[i][sample];
   }
 }
