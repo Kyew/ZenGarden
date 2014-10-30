@@ -34,6 +34,7 @@ DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
 
   // empty init message will always contains a bang (cf. PdMessage::initWithString)
   if (initMessage->getNumElements() == 1 && initMessage->isBang(0)) {
+    outputBuffers.reserve(graph->getNumOutputChannels());
     for (int i = 0; i < graph->getNumOutputChannels(); ++i)
       outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(i));
   }
