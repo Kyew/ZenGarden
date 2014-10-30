@@ -32,8 +32,10 @@ MessageObject *DspDac::newObject(PdMessage *initMessage, PdGraph *graph) {
 DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
   : DspObject(0, 1, 0, 0, graph) {
 
-  if (initMessage->getNumElements() == 0) {
-    outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(0));
+  // empty init message will always contains a bang (cf. PdMessage::initWithString)
+  if (initMessage->getNumElements() == 1 && initMessage->isBang(0)) {
+    for (int i = 0; i < graph->getNumOutputChannels(); ++i)
+      outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(i));
   }
   else {
     outputBuffers.reserve(initMessage->getNumElements());
