@@ -64,8 +64,8 @@ void DspDac::processDspWithIndex(int fromIndex, int toIndex) {
   if (outputBuffers.size() == 0)
     return;
   for (int i = 0; i < outputBuffers.size(); ++i) {
-    if (outputBuffers.at(i) == NULL)
-      continue;
-    ArrayArithmetic::add(outputBuffers.at(i), dspBufferAtInlet[i], outputBuffers.at(i), fromIndex, toIndex);
+    if (outputBuffers.at(i) != NULL) {
+      ArrayArithmetic::add(outputBuffers.at(i), dspBufferAtInlet[i], outputBuffers.at(i), fromIndex, toIndex);
+    }
   }
 }
