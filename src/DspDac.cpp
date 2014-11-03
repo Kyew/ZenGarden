@@ -37,22 +37,20 @@ DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
     outputBuffers.reserve(graph->getNumOutputChannels());
     for (int i = 0; i < graph->getNumOutputChannels(); ++i)
       outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(i));
-  }
-  else {
+  } else {
     outputBuffers.reserve(initMessage->getNumElements());
     for (int i = 0; i < initMessage->getNumElements(); ++i) {
       int index;
       
       if (!initMessage->isFloat(i)) {
-        graph->printErr("DspDac: Init message should only containes output channels index");
+        graph->printErr("DspDac: init message should only contain output channel indices");
         outputBuffers.clear();
         return;
       }
       index = static_cast<int>(initMessage->getFloat(i)) - 1;
       if (index < graph->getContext()->getNumOutputChannels() && index >= 0) {
         outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(index));
-      }
-      else {
+      } else {
         outputBuffers.push_back(NULL);
       }
     }
@@ -68,7 +66,6 @@ void DspDac::processDspWithIndex(int fromIndex, int toIndex) {
   for (int i = 0; i < outputBuffers.size(); ++i) {
     if (outputBuffers.at(i) == NULL)
       continue;
-    for (int sample = fromIndex; sample < toIndex; ++sample)
-      outputBuffers.at(i)[sample] += dspBufferAtInlet[i][sample];
+    ArrayArithmetic::add(outputBuffers.at(i), dspBufferAtInlet[i], outputBuffers.at(i), fromIndex, toIndex);
   }
 }
