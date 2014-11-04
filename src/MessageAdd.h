@@ -41,6 +41,7 @@ class MessageAdd : public MessageObject {
 
     float last;
     float constant;
+    float variable;
 };
 
 inline const char *MessageAdd::getObjectLabel() {

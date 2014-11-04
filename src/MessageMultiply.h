@@ -41,6 +41,7 @@ class MessageMultiply : public MessageObject {
 
     float constant;
     float last;
+    float variable;
 };
 
 inline const char *MessageMultiply::getObjectLabel() {

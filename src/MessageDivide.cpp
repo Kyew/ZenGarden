@@ -29,6 +29,7 @@ MessageObject *MessageDivide::newObject(PdMessage *initMessage, PdGraph *graph) 
 MessageDivide::MessageDivide(PdMessage *initMessage, PdGraph *graph) : MessageObject(2, 1, graph) {
   constant = initMessage->isFloat(0) ? initMessage->getFloat(0) : 0.0f;
   last = 0.0f;
+  variable = 0.0f;
 }
 
 MessageDivide::~MessageDivide() {
@@ -46,7 +47,8 @@ void MessageDivide::processMessage(int inletIndex, PdMessage *message) {
     case 0: {
       switch (message->getType(0)) {
         case FLOAT: {
-          last = constant == 0.0f ? 0.0f : message->getFloat(0) / constant;
+          variable = message->getFloat(0);
+          last = constant == 0.0f ? 0.0f : variable / constant;
           // allow fallthrough
         }
         case BANG: {
@@ -62,6 +64,7 @@ void MessageDivide::processMessage(int inletIndex, PdMessage *message) {
     case 1: {
       if (message->isFloat(0)) {
         constant = message->getFloat(0);
+        last = constant == 0.0f ? 0.0f : variable / constant;
       }
       break;
     }

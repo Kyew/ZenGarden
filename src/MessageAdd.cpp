@@ -29,6 +29,7 @@ MessageObject *MessageAdd::newObject(PdMessage *initMessage, PdGraph *graph) {
 MessageAdd::MessageAdd(PdMessage *initMessage, PdGraph *graph) : MessageObject(2, 1, graph) {
   constant = initMessage->isFloat(0) ? initMessage->getFloat(0) : 0.0f;
   last = 0.0f;
+  variable = 0.0f;
 }
 
 MessageAdd::~MessageAdd() {
@@ -46,7 +47,8 @@ void MessageAdd::processMessage(int inletIndex, PdMessage *message) {
     case 0: {
       switch (message->getType(0)) {
         case FLOAT: {
-          last = message->getFloat(0) + constant;
+          variable = message->getFloat(0);
+          last = variable + constant;
           // allow fallthrough
         }
         case BANG: {
@@ -62,6 +64,7 @@ void MessageAdd::processMessage(int inletIndex, PdMessage *message) {
     case 1: {
       if (message->isFloat(0)) {
         constant = message->getFloat(0);
+        last = variable + constant;
       }
       break;
     }

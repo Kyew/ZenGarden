@@ -41,6 +41,7 @@ class MessageDivide : public MessageObject {
 
     float constant;
     float last;
+    float variable;
 };
 
 inline const char *MessageDivide::getObjectLabel() {
