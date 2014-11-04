@@ -35,15 +35,15 @@ DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
   // empty init message will always contains a bang (cf. PdMessage::initWithString)
   if (initMessage->isBang(0)) {
     outputBuffers.reserve(graph->getNumOutputChannels());
-    for (int i = 0; i < graph->getNumOutputChannels(); ++i)
+    for (int i = 0; i < graph->getNumOutputChannels(); ++i) {
       outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(i));
+    }
   } else {
     outputBuffers.reserve(initMessage->getNumElements());
     for (int i = 0; i < initMessage->getNumElements(); ++i) {
-      int index;
-      
       if (initMessage->isFloat(i)) {
-        index = static_cast<int>(initMessage->getFloat(i)) - 1;
+        int index = static_cast<int>(initMessage->getFloat(i)) - 1;
+
         if (index < graph->getContext()->getNumOutputChannels() && index >= 0) {
           outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(index));
         } else {
