@@ -33,7 +33,7 @@ DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
   : DspObject(0, 1, 0, 0, graph) {
 
   // empty init message will always contains a bang (cf. PdMessage::initWithString)
-  if (initMessage->getNumElements() == 1 && initMessage->isBang(0)) {
+  if (initMessage->isBang(0)) {
     outputBuffers.reserve(graph->getNumOutputChannels());
     for (int i = 0; i < graph->getNumOutputChannels(); ++i)
       outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(i));
@@ -42,16 +42,17 @@ DspDac::DspDac(PdMessage *initMessage, PdGraph *graph)
     for (int i = 0; i < initMessage->getNumElements(); ++i) {
       int index;
       
-      if (!initMessage->isFloat(i)) {
+      if (initMessage->isFloat(i)) {
+        index = static_cast<int>(initMessage->getFloat(i)) - 1;
+        if (index < graph->getContext()->getNumOutputChannels() && index >= 0) {
+          outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(index));
+        } else {
+          outputBuffers.push_back(NULL);
+        }
+      } else {
         graph->printErr("DspDac: init message should only contain output channel indices");
         outputBuffers.clear();
         return;
-      }
-      index = static_cast<int>(initMessage->getFloat(i)) - 1;
-      if (index < graph->getContext()->getNumOutputChannels() && index >= 0) {
-        outputBuffers.push_back(graph->getGlobalDspBufferAtOutlet(index));
-      } else {
-        outputBuffers.push_back(NULL);
       }
     }
   }
