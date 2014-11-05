@@ -43,6 +43,17 @@ class MessageMessageBox : public MessageObject {
   
     vector<PdMessage *> localMessageList;
     vector<MessageNamedDestination> remoteMessageList;
+  
+    void set(const char *initString);
+    void clear();
+    void add(const char *string);
+    void add2(const char *string);
+    void addComma();
+    void addSemi();
+    void addDollar(const char *str);
+    void addDollarSymbol(const char *string);
+  
+    std::string messageString;
 };
 
 inline const char *MessageMessageBox::getObjectLabel() {
