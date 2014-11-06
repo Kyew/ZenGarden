@@ -48,7 +48,7 @@ void MessageDivide::processMessage(int inletIndex, PdMessage *message) {
       switch (message->getType(0)) {
         case FLOAT: {
           variable = message->getFloat(0);
-          last = constant == 0.0f ? 0.0f : variable / constant;
+          last = (constant == 0.0f) ? 0.0f : variable / constant;
           // allow fallthrough
         }
         case BANG: {
@@ -64,7 +64,7 @@ void MessageDivide::processMessage(int inletIndex, PdMessage *message) {
     case 1: {
       if (message->isFloat(0)) {
         constant = message->getFloat(0);
-        last = constant == 0.0f ? 0.0f : variable / constant;
+        last = (constant == 0.0f) ? 0.0f : variable / constant;
       }
       break;
     }
