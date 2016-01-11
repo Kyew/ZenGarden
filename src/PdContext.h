@@ -44,6 +44,7 @@ class TableReceiverInterface;
 class PdMessage;
 class ObjectFactoryMap;
 class PdAbstractionDataBase;
+class AudioBinaryFile;
 
 /**
  * The <code>PdContext</code> is a container for a set of <code>PdGraph</code>s operating in
@@ -119,6 +120,9 @@ class PdContext {
     
     /** Returns the named global <code>DspCatch</code> object. */
     DspCatch *getDspCatch(const char *name);
+
+    /** Returns the named global <code>DelayReceiver</code> object. */
+    DelayReceiver *getDelayReceiver(const char *name);
     
     /**
      * Sends the given message to all [receive] objects with the given <code>name</code>.
@@ -212,6 +216,11 @@ class PdContext {
     BufferPool *getBufferPool() { return bufferPool; }
 
     PdAbstractionDataBase *getAbstractionDataBase();
+
+    //AudioGaming : Audio binary file
+    void registerAudioBinaryFile(const std::string &filepath);
+
+    AudioBinaryFile *getAudioBinaryFile() const;
   
   private:
     /** Returns <code>true</code> if the graph was successfully configured. <code>false</code> otherwise. */
@@ -274,7 +283,10 @@ class PdContext {
     
     /** A global list of all table receivers (e.g., [tabread4~] and [tabplay~]) */
     list<TableReceiverInterface *> tableReceiverList;
-  
+
+    /** Registered binary file */
+    AudioBinaryFile *audioBinaryFile;
+
     ObjectFactoryMap *objectFactoryMap;
   
     BufferPool *bufferPool;
@@ -284,5 +296,9 @@ class PdContext {
 
     PdAbstractionDataBase *abstractionDatabase;
 };
+
+inline PdAbstractionDataBase *PdContext::getAbstractionDataBase() {
+  return abstractionDatabase;
+}
 
 #endif // _PD_CONTEXT_H_

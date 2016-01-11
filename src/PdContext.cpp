@@ -20,6 +20,7 @@
  *
  */
 
+#include "AudioBinaryFile.h"
 #include "BufferPool.h"
 #include "MessageSendController.h"
 #include "ObjectFactoryMap.h"
@@ -55,6 +56,7 @@ PdContext::PdContext(int numInputChannels, int numOutputChannels, int blockSize,
   objectFactoryMap = new ObjectFactoryMap();
   globalGraphId = 0;
   bufferPool = new BufferPool(blockSize);
+  audioBinaryFile = NULL;
   
   numBytesInInputBuffers = blockSize * numInputChannels * sizeof(float);
   numBytesInOutputBuffers = blockSize * numOutputChannels * sizeof(float);
@@ -89,6 +91,10 @@ PdContext::~PdContext() {
   }
 
   delete abstractionDatabase;
+
+  if (audioBinaryFile) {
+    delete audioBinaryFile;
+  }
 
   pthread_mutex_destroy(&contextLock);
 }
@@ -149,6 +155,9 @@ int PdContext::getNextGraphId() {
 
 void PdContext::process(float *inputBuffers, float *outputBuffers) {
   lock(); // lock the context
+  
+  //AudioGaming : Print each process
+//  printStd("------- Process context ---------");
   
   // set up adc~ buffers
   memcpy(globalDspInputBuffers, inputBuffers, numBytesInInputBuffers);
@@ -395,6 +404,13 @@ DspCatch *PdContext::getDspCatch(const char *name) {
   return NULL;
 }
 
+DelayReceiver *PdContext::getDelayReceiver(const char *name) {
+  for (list<DelayReceiver *>::iterator it = delayReceiverList.begin(); it != delayReceiverList.end(); it++) {
+    if (!strcmp((*it)->getName(), name)) return (*it);
+  }
+  return NULL;
+}
+
 void PdContext::registerTable(MessageTable *table) {  
   if (getTable(table->getName()) != NULL) {
     printErr("Table with name \"%s\" already exists.", table->getName());
@@ -490,8 +506,9 @@ void PdContext::scheduleExternalMessage(const char *receiverName, double timesta
   // do the heavy lifting of string parsing before the lock (minimise the critical section)
   int maxElements = (strlen(initString)/2)+1;
   PdMessage *message = PD_MESSAGE_ON_STACK(maxElements);
-  char str[strlen(initString)+1]; strcpy(str, initString);
+  char *str = new char[strlen(initString)+1]; strcpy(str, initString);
   message->initWithString(timestamp, maxElements, str);
+  delete str;
   
   lock(); // lock and load
   int receiverNameIndex = sendController->getNameIndex(receiverName);
@@ -535,6 +552,13 @@ void PdContext::receiveSystemMessage(PdMessage *message) {
   }
 }
 
-PdAbstractionDataBase *PdContext::getAbstractionDataBase() {
-  return abstractionDatabase;
+void PdContext::registerAudioBinaryFile(const std::string &filepath) {
+  if (audioBinaryFile) {
+    delete audioBinaryFile;
+  }
+  audioBinaryFile = new AudioBinaryFile(filepath);
+}
+
+AudioBinaryFile *PdContext::getAudioBinaryFile() const {
+  return audioBinaryFile;
 }
