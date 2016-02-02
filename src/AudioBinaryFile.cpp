@@ -1,4 +1,10 @@
-#include "AudioBinaryFile.h"
+/*
+ *  Copyright 2015, 2016 AudioGaming
+ *  
+ *  This file is a part of the ZenGarden fork by AudioGaming
+ *
+ */
+ #include "AudioBinaryFile.h"
 
 AudioBinaryFile::AudioBinaryFile(const std::string &filepath) {
   _audioBinaryFile = new juce::File(filepath);

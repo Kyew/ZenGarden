@@ -1,4 +1,11 @@
 /*
+ *  Copyright 2015, 2016 AudioGaming
+ *  
+ *  This file is a part of the ZenGarden fork by AudioGaming
+ *  See next comment for original copyright
+ *
+ */
+/*
  *  Copyright 2011,2012 ZenGarden.
  *                 info@rjdj.me
  *                 http://rjdj.me/

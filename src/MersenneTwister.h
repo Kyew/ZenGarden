@@ -1,3 +1,10 @@
+/*
+ *  Copyright 2015, 2016 AudioGaming
+ *  
+ *  This file is a part of the ZenGarden fork by AudioGaming
+ *  See next comment for original copyright
+ *
+ */
 // MersenneTwister.h
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus

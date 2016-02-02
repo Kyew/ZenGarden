@@ -1,3 +1,10 @@
+/*
+ *  Copyright 2015, 2016 AudioGaming
+ *  
+ *  This file is a part of the ZenGarden fork by AudioGaming
+ *
+ */
+ 
 #ifndef __AUDIOBINARYFILE_H__
 #define __AUDIOBINARYFILE_H__
 
